@@ -1,0 +1,21 @@
+Ansible
+
+#uses a module to get the status of nginx -k asks for pw -a used ad hoc module 
+ansible webserver -a "systemctl status nginx.service" -u admin -k
+
+#tested commands
+ansible -i inventory webserver -a "systemctl status nginx.service" -u admin -k
+ansible -i inventory webserver -a "systemctl status ufw.service" -u admin -k
+ansible -i inventory webserver -a "systemctl status ntp.service" -u admin -k
+ansible -i inventory webserver -a "uptime" -u admin -k
+ansible -i inventory webserver -a "date" -u admin -k
+ansible -i inventory webserver -a "ps aux" -u admin -k
+
+
+#ansible.cfg
+[defaults]
+INVENTORY = inventory
+
+#inventory file contents
+[webserver]
+85.215.91.223

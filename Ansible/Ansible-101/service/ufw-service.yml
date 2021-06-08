@@ -1,0 +1,8 @@
+﻿- hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Ensure [ufw] is Running
+      ansible.builtin.systemd:
+        state: started
+        name: ufw

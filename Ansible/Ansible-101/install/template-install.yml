@@ -1,0 +1,9 @@
+﻿---
+- hosts: CHAGE_THE_HOST_VARIABLE
+  gather_facts: false  
+
+  tasks:
+    - name: Install latest [NAME_GOES_IN_HERE]
+      apt:
+        name: INSTALL_PACKAGE_GOES:HERE
+        state: latest

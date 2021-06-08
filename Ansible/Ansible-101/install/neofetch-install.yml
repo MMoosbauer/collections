@@ -1,0 +1,9 @@
+﻿---
+- hosts: vserver
+  gather_facts: false  
+
+  tasks:
+    - name: Install latest [neofetch]
+      apt:
+        name: neofetch
+        state: latest 

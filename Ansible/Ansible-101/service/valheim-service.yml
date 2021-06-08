@@ -1,0 +1,9 @@
+---
+- hosts: gameserver
+  gather_facts: false  
+  tasks:
+    - name: Ensure [Valheim] is Running
+      ansible.builtin.systemd:
+        state: started
+        name: valheim-server
+      

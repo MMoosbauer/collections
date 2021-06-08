@@ -1,0 +1,9 @@
+﻿---
+- hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Ensure [fail2ban] is Running
+      ansible.builtin.systemd:
+        state: started
+        name: fail2ban

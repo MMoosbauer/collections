@@ -1,0 +1,9 @@
+﻿---
+- hosts: all
+  gather_facts: false  
+
+  tasks:
+    - name: Install latest [zsh]
+      apt:
+        name: zsh
+        state: latest

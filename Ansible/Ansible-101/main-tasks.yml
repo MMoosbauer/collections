@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: false
+
+# update caches
+- import_playbook: apt/apt-update-cache.yml
+
+# install packages
+- import_playbook: install/nano-install.yml
+- import_playbook: install/neofetch-install.yml
+- import_playbook: install/exa-install.yml
+- import_playbook: install/zsh-install.yml
+
+# check services
+- import_playbook: service/valheim-service.yml
+- import_playbook: service/nginx-service.yml
+- import_playbook: service/fail2ban-service.yml
+- import_playbook: service/ufw-service.yml

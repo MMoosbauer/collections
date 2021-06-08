@@ -1,0 +1,9 @@
+---
+- hosts: webserver
+  gather_facts: false
+
+  tasks:
+    - name: Ensure [nginx] is Running
+      ansible.builtin.systemd:
+        state: started
+        name: nginx
