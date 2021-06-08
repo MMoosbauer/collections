@@ -1,1 +1,1 @@
-# WIP 
+# Collection Page
