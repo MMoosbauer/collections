@@ -16,7 +16,7 @@ a different limiter like ";", this will also lead to importing issues. The stand
 
 Modify the Objects to select from .csv file starting line 30.
 
-Moezy
+Moezy TM
 #>
 Clear-Host
 # Filename
