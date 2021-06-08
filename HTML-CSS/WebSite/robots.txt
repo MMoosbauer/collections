@@ -1,0 +1,3 @@
+# robots.txt für http://www.m5m7r.de
+User-agent: *
+Disallow: /
