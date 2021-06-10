@@ -51,24 +51,25 @@ function CreateStudentData {
     Import-Csv ".\$filename" -Delimiter $delimiter | Select-Object $firstname, $lastname, $email, $course | ForEach-Object {
         $count++
         # Vowl conversion
-        $_.$firstname = $_.$firstname.Replace("Ö", "Oe")
-        $_.$firstname = $_.$firstname.Replace("Ä", "Ae")
-        $_.$firstname = $_.$firstname.Replace("Ü", "Ue")
-        $_.$firstname = $_.$firstname.Replace("ö", "oe")
-        $_.$firstname = $_.$firstname.Replace("ä", "ae")
-        $_.$firstname = $_.$firstname.Replace("ü", "ue")
-        $_.$firstname = $_.$firstname.Replace("ß", "ss")
-        $_.$firstname = $_.$firstname.Replace(" ", "-")
-
-        $_.$lastname = $_.$lastname.Replace("Ö", "Oe")
-        $_.$lastname = $_.$lastname.Replace("Ä", "Ae")
-        $_.$lastname = $_.$lastname.Replace("Ü", "Ue")
-        $_.$lastname = $_.$lastname.Replace("ö", "oe")
-        $_.$lastname = $_.$lastname.Replace("ä", "ae")
-        $_.$lastname = $_.$lastname.Replace("ü", "ue")
-        $_.$lastname = $_.$lastname.Replace("ß", "ss")
-        $_.$lastname = $_.$lastname.Replace(" ", "-")
-        
+        function RemoveVowlsFromName {
+            $_.$firstname = $_.$firstname.Replace("Ö", "Oe")
+            $_.$firstname = $_.$firstname.Replace("Ä", "Ae")
+            $_.$firstname = $_.$firstname.Replace("Ü", "Ue")
+            $_.$firstname = $_.$firstname.Replace("ö", "oe")
+            $_.$firstname = $_.$firstname.Replace("ä", "ae")
+            $_.$firstname = $_.$firstname.Replace("ü", "ue")
+            $_.$firstname = $_.$firstname.Replace("ß", "ss")
+            $_.$firstname = $_.$firstname.Replace(" ", "-")
+            $_.$lastname = $_.$lastname.Replace("Ö", "Oe")
+            $_.$lastname = $_.$lastname.Replace("Ä", "Ae")
+            $_.$lastname = $_.$lastname.Replace("Ü", "Ue")
+            $_.$lastname = $_.$lastname.Replace("ö", "oe")
+            $_.$lastname = $_.$lastname.Replace("ä", "ae")
+            $_.$lastname = $_.$lastname.Replace("ü", "ue")
+            $_.$lastname = $_.$lastname.Replace("ß", "ss")
+            $_.$lastname = $_.$lastname.Replace(" ", "-")          
+        }
+        RemoveVowlsFromName;
         # Create Login and Mail from Substring
         $surname = $_.$lastname
         $name = $_.$firstname
@@ -95,48 +96,47 @@ function CreateStudentData {
         $rplLower = [char[]]([char]'a'..[char]'k' + [char]'m'..[char]'z')
 
         # Piece Passwd together -> can be better with replace with random character
-        $pass = $rplUpper[$randIndexUpper] + $rplLower[$randIndexLower] + $num1 + "#" + $rplUpper[$randIndexUpper2] + $rplLower[$randIndexLower2] + $num2 + "*"
+        $local:pass = $rplUpper[$randIndexUpper] + $rplLower[$randIndexLower] + $num1 + "#" + $rplUpper[$randIndexUpper2] + $rplLower[$randIndexLower2] + $num2 + "*"
 
         # Append to File as CSV     
-        $fullName + ";" + $login.ToLower() + ";" + $name + ";" + $surname + ";" + $activDir + ";" + $privMail + ";" + $pass >> .\"$csvFileDB.csv"
+        $fullName + ";" + $login.ToLower() + ";" + $name + ";" + $surname + ";" + $activDir + ";" + $privMail + ";" + $local:pass >> .\"$csvFileDB.csv"
         $fullName + ";" + $login.ToLower() + ";" + $name + ";" + $surname + ";" + $pass + ";" + $courseID >> .\"$csvFileAD"   
+    }
+    function GetCountInfo {
+        # Count entires in created .csv files
+        $tmpDB = Import-Csv ".\$csvFileDB.csv" | Select-Object $firstname | ForEach-Object { $countDB++ }
+        # Status Message
+        if ($countDB -eq $count ) {
+            $outInfoDB = "OK!"
+        }
+        elseif ($countDB -lt $count) {
+            $outInfoDB = "Not all files were transfered!`nCheck the syntax of the file or script."
+        }
+        $tmpAD = Import-Csv ".\$csvFileAD" | Select-Object $name | ForEach-Object { $countAD++ }
 
+        if ($countAD -eq $count) {
+            $outInfoAD = "OK!"
+        }
+        elseif ($countAD -lt $count) {
+            $outInfoAD = "Not all files were transfered!`nCheck the syntax of the file or script." 
+        }
+        elseif ($countAD -gt $count) {
+            $outInfoAD = "Check $csvFileAD for doubles!." 
+        }
+        # Summary
+        Clear-Host
+        Write-Host "Summary"
+        Write-Host "----------------------------------------------------------------" -ForegroundColor Yellow
+        Write-Host "DB CSV Status:" $outInfoDB
+        Write-Host "AD CSV Status:" $outInfoAD
+        Write-Host "`nDB CSV Entries created:" $countDB"/"$count -ForegroundColor Green
+        Write-Host "AD CSV Entries created:" $countAD"/"$count -ForegroundColor Green
+        Write-Host "`nSource filename:"$filename
+        Write-Host "DB Output filename:"$csvFileDB".csv"
+        Write-Host "AD Output filename:"$csvFileAD
+        Write-Host "---------------------------------------------------------------`n" -ForegroundColor Yellow
     }
-
-    # Count entires in created .csv files
-    $tmpDB = Import-Csv ".\$csvFileDB.csv" | Select-Object $firstname | ForEach-Object { $countDB++ }
-    # Status Message
-    if ($countDB -eq $count ) {
-        $outInfoDB = "OK!"
-    }
-    elseif ($countDB -lt $count) {
-        $outInfoDB = "Not all files were transfered!`nCheck the syntax of the file or script."
-    }
-    $tmpAD = Import-Csv ".\$csvFileAD" | Select-Object $name | ForEach-Object { $countAD++ }
-
-    if ($countAD -eq $count) {
-        $outInfoAD = "OK!"
-    }
-    elseif ($countAD -lt $count) {
-        $outInfoAD = "Not all files were transfered!`nCheck the syntax of the file or script." 
-    }
-    elseif ($countAD -gt $count) {
-        $outInfoAD = "Check $csvFileAD for doubles!." 
-    }     
-
-    # Summary
-    Clear-Host
-    Write-Host "Summary"
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Yellow
-    Write-Host "DB CSV Status:" $outInfoDB
-    Write-Host "AD CSV Status:" $outInfoAD
-    Write-Host "`nDB Entries created:" $countDB"/"$count -ForegroundColor Green
-    Write-Host "AD Entries created:" $countAD"/"$count -ForegroundColor Green
-    Write-Host "`nSource filename:"$filename
-    Write-Host "DB Output filename:"$csvFileDB".csv"
-    Write-Host "AD Output filename:"$csvFileAD
-    Write-Host "---------------------------------------------------------------`n" -ForegroundColor Yellow
-    
+    GetCountInfo;
 }
 # Run function
 CreateStudentData;
