@@ -20,31 +20,31 @@ Clear-Host
 # Filename
 [string] $filename = "testdata.csv"
 
-$date = Get-Date -Format yyyy-MM-dd-HH-mm-ss
+# Objects to select from .csv file | DO NOT USE "E-Mail" as Object it is an internal PowerShell function.
+[string] $delimiter = ";"
+[string] $firstname = "Vorname"
+[string] $lastname = "Nachname"
+[string] $domainName = "@domain.local"
+[string] $email = "Mail"
+[string] $course = "Kurs"
+
+# Counter
+[Int32] $count = 0
+[Int32] $countAD = 0
+[Int32] $countDB = 0
+
 # Set Date and Filename
+$date = Get-Date -Format yyyy-MM-dd-HH-mm-ss
 $csvFileDB = $date + "-DB"
 $csvFileAD = "import.csv"
 
 #Initial CSV format
-[string] $csvFormatDB = "fullname;username;firstname;lastname;ad;email;password"
-[string] $csvFormatAD = "name;login;vorname;nachname;passwort;kurs"
+[string] $csvFormatDB = "fullname" + $delimiter + "username" + $delimiter + "firstname" + $delimiter + "lastname" + $delimiter + "ad" + $delimiter + "email" + $delimiter + "password"
+[string] $csvFormatAD = "name" + $delimiter + "login" + $delimiter + "vorname" + $delimiter + "nachname" + $delimiter + "passwort" + $delimiter + "kurs"
 
 #Append Format to file
 $csvFormatDB >> .\"$csvFileDB.csv"
 $csvFormatAD >> .\"$csvFileAD"
-
-# Objects to select from .csv file | DO NOT USE "E-Mail" as Object it is an internal PowerShell function.
-$delimiter = ";"
-$firstname = "Vorname"
-$lastname = "Nachname"
-$domainName = "@domain.local"
-$email = "Mail"
-$course = "Kurs"
-
-# Counter
-$count = 0
-$countAD = 0
-$countDB = 0
 
 # function to create student data 
 function CreateStudentData {
@@ -99,8 +99,8 @@ function CreateStudentData {
         $local:pass = $rplUpper[$randIndexUpper] + $rplLower[$randIndexLower] + $num1 + "#" + $rplUpper[$randIndexUpper2] + $rplLower[$randIndexLower2] + $num2 + "*"
 
         # Append to File as CSV     
-        $fullName + ";" + $login.ToLower() + ";" + $name + ";" + $surname + ";" + $activDir + ";" + $privMail + ";" + $local:pass >> .\"$csvFileDB.csv"
-        $fullName + ";" + $login.ToLower() + ";" + $name + ";" + $surname + ";" + $pass + ";" + $courseID >> .\"$csvFileAD"   
+        $fullName + $delimiter + $login.ToLower() + $delimiter + $name + $delimiter + $surname + $delimiter + $activDir + $delimiter + $privMail + $delimiter + $local:pass >> .\"$csvFileDB.csv"
+        $fullName + $delimiter + $login.ToLower() + $delimiter + $name + $delimiter + $surname + $delimiter + $pass + $delimiter + $courseID >> .\"$csvFileAD"   
     }
     function GetCountInfo {
         # Count entires in created .csv files
