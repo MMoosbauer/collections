@@ -15,8 +15,6 @@ since its an built-in function. Editing .csv with EXCEL can lead to formating is
 a different limiter like ";", this will also lead to importing issues. The standard delmimiter should be an ",".
 
 Modify the Objects to select from .csv file starting line 30.
-
-Moezy TM
 #>
 Clear-Host
 # Filename
@@ -24,7 +22,7 @@ Clear-Host
 
 $date = Get-Date -Format yyyy-MM-dd-HH-mm-ss
 # Set Date and Filename
-$csvFileDB = $date
+$csvFileDB = $date + "-DB"
 $csvFileAD = "import.csv"
 
 #Initial CSV format
@@ -39,17 +37,19 @@ $csvFormatAD >> .\"$csvFileAD"
 $delimiter = ";"
 $firstname = "Vorname"
 $lastname = "Nachname"
+$domainName = "@domain.local"
 $email = "Mail"
 $course = "Kurs"
 
 # Counter
 $count = 0
-$countCrt = 0
+$countAD = 0
+$countDB = 0
 
 # function to create student data 
 function CreateStudentData {
     Import-Csv ".\$filename" -Delimiter $delimiter | Select-Object $firstname, $lastname, $email, $course | ForEach-Object {
-        $count = $count + 1
+        $count++
         # Vowl conversion
         $_.$firstname = $_.$firstname.Replace("Ö", "Oe")
         $_.$firstname = $_.$firstname.Replace("Ä", "Ae")
@@ -78,7 +78,7 @@ function CreateStudentData {
         # Create User Data
         $fullName = $_.$firstname + " " + $_.$lastname 
         $login = $_.$firstname.Substring(0, 1) + "." + $_.$lastname
-        $activDir = $_.$firstname.Substring(0, 1) + "." + $_.$lastname + "@domain.local"
+        $activDir = $_.$firstname.Substring(0, 1) + "." + $_.$lastname + $domainName
         
         # Random Numbers for Passwd
         $num1 = Get-Random -Minimum 10 -Maximum 100
@@ -103,25 +103,36 @@ function CreateStudentData {
 
     }
 
-    # Count entires in created .csv file
-    $countCreated = Import-Csv ".\$csvFileDB.csv" | Select-Object $firstname | ForEach-Object {
-        $countCrt = $countCrt + 1 }
-    
+    # Count entires in created .csv files
+    $tmpDB = Import-Csv ".\$csvFileDB.csv" | Select-Object $firstname | ForEach-Object { $countDB++ }
     # Status Message
-    if ($countCrt -eq $count) {
-        $outInfo = "Okay"
+    if ($countDB -eq $count ) {
+        $outInfoDB = "OK!"
     }
-    elseif ($countCrt -lt $count) {
-        $outInfo = "Not all files were transfered!`nCheck the syntax of the file or script."
+    elseif ($countDB -lt $count) {
+        $outInfoDB = "Not all files were transfered!`nCheck the syntax of the file or script."
     }
+    $tmpAD = Import-Csv ".\$csvFileAD" | Select-Object $name | ForEach-Object { $countAD++ }
+
+    if ($countAD -eq $count) {
+        $outInfoAD = "OK!"
+    }
+    elseif ($countAD -lt $count) {
+        $outInfoAD = "Not all files were transfered!`nCheck the syntax of the file or script." 
+    }
+    elseif ($countAD -gt $count) {
+        $outInfoAD = "Check $csvFileAD for doubles!." 
+    }     
 
     # Summary
     Clear-Host
     Write-Host "Summary"
     Write-Host "----------------------------------------------------------------" -ForegroundColor Yellow
-    Write-Host "Status:" $outInfo
-    Write-Host "Entries created:" $countCrt"/"$count -ForegroundColor Green
-    Write-Host "Source filename:"$filename
+    Write-Host "DB CSV Status:" $outInfoDB
+    Write-Host "AD CSV Status:" $outInfoAD
+    Write-Host "`nDB Entries created:" $countDB"/"$count -ForegroundColor Green
+    Write-Host "AD Entries created:" $countAD"/"$count -ForegroundColor Green
+    Write-Host "`nSource filename:"$filename
     Write-Host "DB Output filename:"$csvFileDB".csv"
     Write-Host "AD Output filename:"$csvFileAD
     Write-Host "---------------------------------------------------------------`n" -ForegroundColor Yellow
