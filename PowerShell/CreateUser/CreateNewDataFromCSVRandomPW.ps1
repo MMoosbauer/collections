@@ -15,6 +15,8 @@ since its an built-in function. Editing .csv with EXCEL can lead to formating is
 a different limiter like ";", this will also lead to importing issues. The standard delmimiter should be an ",".
 
 Modify the Objects to select from .csv file starting line 30.
+
+If adding more rows for output, add the corresponding index ex.: $delimiter + $csvLayoutDB[8]
 #>
 Clear-Host
 # Filename
@@ -28,6 +30,10 @@ Clear-Host
 [string] $email = "Mail"
 [string] $course = "Kurs"
 
+# First Row output into CSV file
+$csvLayoutDB = [string[]]("fullname", "username", "firstname", "lastname", "ad", "email", "password")
+$csvLayoutAD = [string[]]("name", "login", "vorname", "nachname", "passwort", "kurs")
+
 # Counter
 [Int32] $count = 0
 [Int32] $countAD = 0
@@ -39,19 +45,19 @@ $csvFileDB = $date + "-DB"
 $csvFileAD = "import.csv"
 
 #Initial CSV format
-[string] $csvFormatDB = "fullname" + $delimiter + "username" + $delimiter + "firstname" + $delimiter + "lastname" + $delimiter + "ad" + $delimiter + "email" + $delimiter + "password"
-[string] $csvFormatAD = "name" + $delimiter + "login" + $delimiter + "vorname" + $delimiter + "nachname" + $delimiter + "passwort" + $delimiter + "kurs"
+[string] $csvFormatDB = $csvLayoutDB[0] + $delimiter + $csvLayoutDB[1] + $delimiter + $csvLayoutDB[2] + $delimiter + $csvLayoutDB[3] + $delimiter + $csvLayoutDB[4] + $delimiter + $csvLayoutDB[5] + $delimiter + $csvLayoutDB[6]
+[string] $csvFormatAD = $csvLayoutAD[0] + $delimiter + $csvLayoutAD[1] + $delimiter + $csvLayoutAD[2] + $delimiter + $csvLayoutAD[3] + $delimiter + $csvLayoutAD[4] + $delimiter + $csvLayoutAD[5]
 
-#Append Format to file
+# Append Format to file
 $csvFormatDB >> .\"$csvFileDB.csv"
 $csvFormatAD >> .\"$csvFileAD"
 
-# function to create student data 
+# Function to create student data 
 function CreateStudentData {
     Import-Csv ".\$filename" -Delimiter $delimiter | Select-Object $firstname, $lastname, $email, $course | ForEach-Object {
         $count++
         # Vowl conversion
-        function RemoveVowlsFromName {
+        function ConvertVowlsFromName {
             $_.$firstname = $_.$firstname.Replace("Ö", "Oe")
             $_.$firstname = $_.$firstname.Replace("Ä", "Ae")
             $_.$firstname = $_.$firstname.Replace("Ü", "Ue")
@@ -69,7 +75,7 @@ function CreateStudentData {
             $_.$lastname = $_.$lastname.Replace("ß", "ss")
             $_.$lastname = $_.$lastname.Replace(" ", "-")          
         }
-        RemoveVowlsFromName;
+        ConvertVowlsFromName;
         # Create Login and Mail from Substring
         $surname = $_.$lastname
         $name = $_.$firstname
@@ -104,7 +110,9 @@ function CreateStudentData {
     }
     function GetCountInfo {
         # Count entires in created .csv files
-        $tmpDB = Import-Csv ".\$csvFileDB.csv" | Select-Object $firstname | ForEach-Object { $countDB++ }
+        Import-Csv ".\$csvFileDB.csv" | Select-Object $firstname | ForEach-Object { $countDB++ }
+        Import-Csv ".\$csvFileAD" | Select-Object $name | ForEach-Object { $countAD++ }
+
         # Status Message
         if ($countDB -eq $count ) {
             $outInfoDB = "OK!"
@@ -112,8 +120,6 @@ function CreateStudentData {
         elseif ($countDB -lt $count) {
             $outInfoDB = "Not all files were transfered!`nCheck the syntax of the file or script."
         }
-        $tmpAD = Import-Csv ".\$csvFileAD" | Select-Object $name | ForEach-Object { $countAD++ }
-
         if ($countAD -eq $count) {
             $outInfoAD = "OK!"
         }
@@ -123,8 +129,8 @@ function CreateStudentData {
         elseif ($countAD -gt $count) {
             $outInfoAD = "Check $csvFileAD for doubles!." 
         }
-        # Summary
-        Clear-Host
+
+        # Summary View
         Write-Host "Summary"
         Write-Host "----------------------------------------------------------------" -ForegroundColor Yellow
         Write-Host "DB CSV Status:" $outInfoDB
@@ -137,6 +143,7 @@ function CreateStudentData {
         Write-Host "---------------------------------------------------------------`n" -ForegroundColor Yellow
     }
     GetCountInfo;
+    
 }
 # Run function
 CreateStudentData;
